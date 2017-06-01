@@ -24,8 +24,10 @@
       <script>
           if (isUserLoggedIn) {
               $('#signoutButton').attr('style', 'display: initial');
+              $('#signinButton').attr('style', 'display: none');
           } else {
               $('#signoutButton').attr('style', 'display: none');
+              $('#signinButton').attr('style', 'display: initial');
           }
           $('#signinButton').click(function() {
               auth2.grantOfflineAccess({
