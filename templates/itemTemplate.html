@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<!-- This HTML File displays an Item. -->
+<html>
+  <head>
+      <title>Item Catalog</title>
+  </head>
+  <body>
+    <h1> {{ item.name }} </h1>
+    <h3> {{ item.description }} </h3>
+    {% if isUserLoggedIn %}
+      <a href="{{url_for('editCatalogItem', cName = cName, itemName = item.name)}}"> Edit </a>
+      <a href="{{url_for('deleteCatalogItem', cName = cName, itemName = item.name)}}"> Delete </a>
+      <br>
+    {% endif %}
+    <a href = "{{url_for('displayCatalogItems', cName = cName) }}">Back</a>
+  </body>
+</html>

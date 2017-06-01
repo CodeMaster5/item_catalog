@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<!-- This HTML File displays the form to add an Item. -->
+<html>
+  <head>
+      <title>Item Catalog</title>
+  </head>
+  <body>
+    <h1> Enter information for the new item. </h1>
+    <form action="{{url_for('addCatalogItem', cName=cName) }}" method = 'POST'>
+      <p>Item name:</p>
+      <input type='text' size='30' name='name'>
+      <p>Item description:</p>
+      <input type='text' size='60' name='description'>
+      <input type='submit' value='Create'>
+    </form>
+    <a href="{{url_for('displayCatalogItems', cName = cName) }}"> Cancel </a>
+  </body>
+</html>

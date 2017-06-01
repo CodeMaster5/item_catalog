@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<!-- This HTML File displays the items of a Catalog. -->
+<html>
+  <head>
+      <title>Item Catalog</title>
+  </head>
+  <body>
+    <h1> {{ cName }} </h1>
+    {% for item in items %}
+        <a href="{{url_for('displayCatalogItem', cName = cName, itemName = item.name) }}">{{item.name}}</a>
+        <br>
+    {% endfor %}
+    <br>
+    {% if isUserLoggedIn %}
+      <a href = "{{url_for('addCatalogItem', cName = cName)}}">Add new item</a>
+      <br>
+    {% endif %}
+    <a href = "{{url_for('displayCatalogs')}}">Back</a>
+  </body>
+</html>

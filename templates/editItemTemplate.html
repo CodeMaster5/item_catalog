@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<!-- This HTML File displays the form to edit an Item. -->
+<html>
+  <head>
+      <title>Item Catalog</title>
+  </head>
+  <body>
+    <h1> Enter your edits for item {{ item.name }} </h1>
+    <form action="{{url_for('editCatalogItem', cName=cName, itemName = item.name)}}" method = 'POST'>
+      <p>Item name:</p>
+      <input type='text' size='30' name='name' value='{{ item.name }}'>
+      <p>Item description:</p>
+      <input type='text' size='60' name='description' value='{{ item.description }}'>
+      <input type='submit' value='Edit'>
+    </form>
+    <a href="{{url_for('displayCatalogItems', cName = cName)}}"> Cancel </a>
+  </body>
+</html>

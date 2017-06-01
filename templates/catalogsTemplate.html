@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<!-- This HTML File displays the catalog. -->
+<html>
+  <head>
+      <title>Item Catalog</title>
+  </head>
+  <body>
+      <h1> Catalogs </h1> {% for catalog in catalogs %}
+      <a href="{{url_for('displayCatalogItems', cName = catalog.name)}}"> {{ catalog.name }}</a>
+      <br> {% endfor %}
+      <br>
+      <a href="{{url_for('displayCatalogsJSON')}}">Get Catalog JSON</a>
+      <br>
+      <a href="{{url_for('displayItemsJSON')}}">Get Items JSON</a>
+      <br>
+      <a href="{{url_for('showLogin')}}">Login</a>
+  </body>
+</html>

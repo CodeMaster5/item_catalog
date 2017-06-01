@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<!-- This HTML File displays the Item to delete. -->
+<html>
+  <head>
+      <title>Item Catalog</title>
+  </head>
+  <body>
+    <h1> Are you sure you want to delete {{ itemName }}? </h1>
+    <form action="{{ url_for('deleteCatalogItem', cName = cName, itemName = itemName) }}" method = 'post'>
+      <input type='submit' value = 'Delete'>
+    </form>
+    <a href="{{url_for('displayCatalogItems', cName = cName)}}"> Cancel </a>
+  </body>
+</html>
