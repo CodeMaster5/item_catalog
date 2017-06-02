@@ -13,6 +13,13 @@
       <br>
       <a href="{{url_for('displayItemsJSON')}}">Get Items JSON</a>
       <br>
-      <a href="{{url_for('showLogin')}}">Login</a>
+      {% if isUserLoggedIn == false %}
+          <br>
+          <a href="{{url_for('showLogin')}}">Click here to Login.</a>
+      {% endif %}
+      {% if isUserLoggedIn %}
+          <br>
+          <a href="{{url_for('showLogin')}}">Click here to Logout.</a>
+      {% endif %}
   </body>
 </html>

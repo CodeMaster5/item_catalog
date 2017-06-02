@@ -17,6 +17,7 @@ import httplib2
 import json
 import requests
 import string
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -27,6 +28,25 @@ session = DBSession()
 
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
+
+
+# This function checks if the user is logged in.
+def isUserLoggedIn():
+    return not (login_session.get('access_token') is None and
+                login_session.get('username') is None and
+                login_session.get('gplus_id') is None)
+
+# This function is a wrapper function that redirects the user if he/she is not
+# Logged in.
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if isUserLoggedIn():
+            return f(*args, **kwargs)
+        else:
+            return redirect('/login')
+    return decorated_function
+
 
 
 # This function displays all the Catalogs.
@@ -106,7 +126,7 @@ def gconnect():
                                  'Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         print(response)
-        return redirect(url_for('displayCatalogs'))
+        return redirect(url_for('showLogin'))
 
     # Store the access token in the session for later use.
     login_session['access_token'] = credentials.access_token
@@ -119,7 +139,7 @@ def gconnect():
     data = answer.json()
     login_session['username'] = data['name']
     print(login_session['username'])
-    return redirect(url_for('displayCatalogs'))
+    return ("Hi " + login_session['username'])
 
 
 # This function handles disconnection of a User.
@@ -160,10 +180,8 @@ def displayCatalogItems(cName):
 
 # This function handles addition of an Item.
 @app.route('/catalog/<cName>/items/add', methods=['GET', 'POST'])
+@login_required
 def addCatalogItem(cName):
-    if not isUserLoggedIn():
-        return redirect(url_for('displayCatalogItems', cName=cName,
-                                isUserLoggedIn=isUserLoggedIn()))
     catalog = session.query(Catalog).filter_by(name=cName).one()
     if request.method == 'POST':
         newItem = Item(name=request.form['name'],
@@ -187,10 +205,8 @@ def displayCatalogItem(cName, itemName):
 
 # This function handles editing of an Item.
 @app.route('/catalog/<cName>/items/<itemName>/edit2', methods=['GET', 'POST'])
+@login_required
 def editCatalogItem(cName, itemName):
-    if not isUserLoggedIn():
-        return redirect(url_for('displayCatalogItem', cName=cName,
-                        itemName=itemName, isUserLoggedIn=isUserLoggedIn()))
     editItem = session.query(Item).filter_by(name=itemName).one()
     if request.method == 'POST':
         if request.form['name']:
@@ -208,11 +224,8 @@ def editCatalogItem(cName, itemName):
 
 # This function handles deletion of an Item.
 @app.route('/catalog/<cName>/items/<itemName>/delete', methods=['GET', 'POST'])
+@login_required
 def deleteCatalogItem(cName, itemName):
-    if not isUserLoggedIn():
-        return redirect(url_for('displayCatalogItem', cName=cName,
-                                itemName=itemName,
-                                isUserLoggedIn=isUserLoggedIn()))
     deleteItem = session.query(Item).filter_by(name=itemName).one()
     if request.method == 'POST':
         session.delete(deleteItem)
@@ -238,11 +251,11 @@ def displayItemsJSON():
     return jsonify(Items=[item.serialize for item in items])
 
 
-# This function checks if the user is logged in.
-def isUserLoggedIn():
-    return not (login_session.get('access_token') is None and
-                login_session.get('username') is None and
-                login_session.get('gplus_id') is None)
+# This function displays a JSON for a single Item.
+@app.route('/catalog/<cName>/items/<itemName>')
+def displayCatalogItemJSON(cName, itemName):
+    item = session.query(Item).filter_by(name=itemName).one()
+    return jsonify(Items=[item.serialize])
 
 
 if __name__ == '__main__':
