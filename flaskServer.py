@@ -7,7 +7,7 @@
 # Python imports
 from flask import Flask, render_template, request, redirect, url_for
 from flask import jsonify, make_response, session as login_session
-from generate_database import Base, Catalog, Item
+from generate_database import Base, User, Catalog, Item
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 import random
@@ -36,6 +36,7 @@ def isUserLoggedIn():
                 login_session.get('username') is None and
                 login_session.get('gplus_id') is None)
 
+
 # This function is a wrapper function that redirects the user if he/she is not
 # Logged in.
 def login_required(f):
@@ -46,7 +47,6 @@ def login_required(f):
         else:
             return redirect('/login')
     return decorated_function
-
 
 
 # This function displays all the Catalogs.
@@ -138,6 +138,16 @@ def gconnect():
     answer = requests.get(userinfo_url, params=params)
     data = answer.json()
     login_session['username'] = data['name']
+    login_session['email'] = data["email"]
+    user = None
+    try:
+        user = session.query(User).filter_by(email=login_session['email']).one()
+    except:
+        user = None
+    if user is None:
+        newUser = User(email=login_session['email'])
+        session.add(newUser)
+        session.commit()
     print(login_session['username'])
     return ("Hi " + login_session['username'])
 
@@ -183,10 +193,12 @@ def displayCatalogItems(cName):
 @login_required
 def addCatalogItem(cName):
     catalog = session.query(Catalog).filter_by(name=cName).one()
+    currentUser = session.query(User).filter_by(email=login_session
+                                                    .get('email')).one()
     if request.method == 'POST':
         newItem = Item(name=request.form['name'],
                        description=request.form['description'],
-                       catalog_id=catalog.id)
+                       catalog_id=catalog.id, user_id=currentUser.id)
         session.add(newItem)
         session.commit()
         return redirect(url_for('displayCatalogItems', cName=cName,
@@ -204,10 +216,14 @@ def displayCatalogItem(cName, itemName):
 
 
 # This function handles editing of an Item.
-@app.route('/catalog/<cName>/items/<itemName>/edit2', methods=['GET', 'POST'])
+@app.route('/catalog/<cName>/items/<itemName>/edit', methods=['GET', 'POST'])
 @login_required
 def editCatalogItem(cName, itemName):
     editItem = session.query(Item).filter_by(name=itemName).one()
+    currentUser = session.query(User).filter_by(email=login_session
+                                                .get('email')).one()
+    if currentUser.id != editItem.user_id:
+        return "<h1>You can't edit this item! Return back.</h1>"
     if request.method == 'POST':
         if request.form['name']:
             editItem.name = request.form['name']
@@ -227,6 +243,10 @@ def editCatalogItem(cName, itemName):
 @login_required
 def deleteCatalogItem(cName, itemName):
     deleteItem = session.query(Item).filter_by(name=itemName).one()
+    currentUser = session.query(User).filter_by(email=login_session
+                                                .get('email')).one()
+    if currentUser.id != deleteItem.user_id:
+        return "<h1>You can't delete this item! Return back.</h1>"
     if request.method == 'POST':
         session.delete(deleteItem)
         session.commit()

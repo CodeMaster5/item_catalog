@@ -10,6 +10,19 @@ from sqlalchemy import create_engine
 
 Base = declarative_base()
 
+
+# User Table
+
+
+class User(Base):
+    
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True)
+    email = Column(String(250), nullable=False)
+
+
+
 # Catalog Table
 
 
@@ -40,6 +53,8 @@ class Item(Base):
     description = Column(String(250))
     catalog_id = Column(Integer, ForeignKey('catalog.id'))
     catalog = relationship(Catalog)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     @property
     def serialize(self):

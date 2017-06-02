@@ -13,6 +13,6 @@
       <input type='text' size='60' name='description' value='{{ item.description }}'>
       <input type='submit' value='Edit'>
     </form>
-    <a href="{{url_for('displayCatalogItems', cName = cName)}}"> Cancel </a>
+    <a href="{{url_for('displayCatalogItem', cName = cName, itemName = item.name)}}"> Cancel </a>
   </body>
 </html>
